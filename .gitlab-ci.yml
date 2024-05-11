@@ -1,0 +1,34 @@
+stages:
+    - build
+    - build-docker-image
+    - push-image-to-gitlab-registry
+
+build_java_version:
+    stage: build
+    tags:
+      - ssh
+    script:
+      - mvn --version
+      - mvn clean package
+    artifacts:
+      paths:
+        - "./"
+
+build-docker-image:
+    stage: build-docker-image
+    tags:
+      - ssh
+    script:
+      - docker info
+      - docker build -t registry.gitlab.com/mygp3475519/cicd .
+
+pushing-image:
+    stage: push-image-to-gitlab-registry
+    tags:
+      - ssh
+    before_script:
+        - docker login registry.gitlab.com -u "$CI_REGISTRY_GITLAB_USERID" -p "$CI_GITLAB_TOKEN"
+    script:
+       - docker images
+       - docker push registry.gitlab.com/mygp3475519/cicd
+    
